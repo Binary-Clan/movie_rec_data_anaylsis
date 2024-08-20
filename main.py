@@ -1,7 +1,6 @@
-import nltk
 import pandas as pd
 from tqdm import tqdm
-from text_processing import preprocess_text
+from utils.text_processing import preprocess_text
 from multiprocessing import Pool, cpu_count
 
 # Show all columns
@@ -25,18 +24,19 @@ pd.set_option('display.max_columns', None)
 #
 # download_nltk_resources()
 
-data_path = 'chunked_data/'
+data_path = 'split_files_with_info 0 - 68/'
 save_path = 'processed_data/'
 
-chunk_list = [f'chunk_{i}_with_info.csv' for i in range(100, 101)]
+chunk_list = [f'chunk_{i}_with_info.csv' for i in range(0, 114)]
 
 def parallel_apply(df, func, column, remove_stopwords=True):
     # Convert DataFrame column to list
     data = df[column].tolist()
     # Prepare arguments for the function
     arguments = [(text, remove_stopwords) for text in data]
+    print(cpu_count())
     # Initialize pool
-    with Pool(cpu_count()) as pool:
+    with Pool(processes=12) as pool:
         results = pool.starmap(func, arguments)
     # Assign results back to DataFrame
     df[column] = results
@@ -117,4 +117,7 @@ def process_data_chunks(data_chunk):
 
 if __name__ == '__main__':
     for chunk in tqdm(chunk_list, desc="Processing Chunks"):
-        process_data_chunks(chunk)
+        try:
+            process_data_chunks(chunk)
+        except Exception as e:
+            print(f"Error processing {chunk}: {e}")

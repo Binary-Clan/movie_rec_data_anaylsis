@@ -1,17 +1,29 @@
+import os
 import pandas as pd
 
-# df = pd.read_csv('chunked_data/chunk_100_with_info.csv')
-df = pd.read_csv('processed_data/chunk_100_with_info.csv')
+# Define the paths
+data_path = 'processed_data/'
+save_path = 'processed_data_final/'
 
-# remove rows where title is NaN
-df = df.dropna(subset=['title'])
+# Ensure the save_path directory exists
+os.makedirs(save_path, exist_ok=True)
 
-# Ensure no NaN values in poster_path and tagline
-df['poster_path'] = df['poster_path'].fillna('')
-df['tagline'] = df['tagline'].fillna('')
+# Loop through all files in the data_path directory
+for filename in os.listdir(data_path):
+    if filename.endswith('.csv'):
+        # Read the CSV file
+        df = pd.read_csv(os.path.join(data_path, filename))
 
-# print null values
-print(df.isnull().sum())
+        # Remove rows where title is NaN
+        df = df.dropna(subset=['title'])
 
-# Save the processed data
-df.to_csv('processed_data/chunk_100_with_info.csv', index=False)
+        # Ensure no NaN values in poster_path and tagline
+        df['poster_path'] = df['poster_path'].fillna('')
+        df['tagline'] = df['tagline'].fillna('')
+
+        # Print null values (optional)
+        print(f'Null values in {filename}:')
+        print(df.isnull().sum())
+
+        # Save the processed data
+        df.to_csv(os.path.join(save_path, filename), index=False)
